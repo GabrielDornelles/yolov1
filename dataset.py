@@ -5,8 +5,8 @@ from torchvision.datasets import VOCDetection
 
 class VOCDataset(torch.utils.data.Dataset):
 
-    def __init__(self, S=7, B=2, C=20, imageset="train", transform=None):
-        self.dataset = VOCDetection(root="./", image_set=imageset, download=False)
+    def __init__(self, S=7, B=2, C=20, imageset="train", transform=None, download=False):
+        self.dataset = VOCDetection(root="./", image_set=imageset, download=download)
         self.classes = [
             "aeroplane",
             "bicycle",

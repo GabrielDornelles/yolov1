@@ -1,0 +1,12 @@
+albumentations
+hydra-core
+omegaconf
+rich
+torch
+torchsummary
+torchvision
+wandb
+matplotlib
+
+# if you prefer tensorboard
+tensorboard

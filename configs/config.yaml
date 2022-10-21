@@ -1,0 +1,10 @@
+processing:
+  device: cuda
+  batch_size: 16
+  num_workers: 4
+  save_model_every_n_epochs: 50
+
+training:
+  lr: 2e-5
+  num_epochs: 100
+  

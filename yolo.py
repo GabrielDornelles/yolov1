@@ -118,14 +118,10 @@ class Yolo(nn.Module):
         x = self.conv6(x)
         x = self.fc(x)
         # x = x.view((7,7,30)) # dont do that here, problems with batch_size > 1
-        # per 7x7 grid: first the 20 classes, then  2 boxes of 5 coordinates (x,y,w,h,class)
         return x
 
-
-
-#if __name__ == "__main__":
-    # model  = Yolo(num_boxes=2, num_classes=20) # 2 boxes per grid, 20 classes (Pascal VOC)
-    # sample = torch.randn((1,3,448,448))
-    # output = model(sample)
-    # print(output.shape)
-    # print(output[0])
+if __name__ == "__main__":
+    model  = Yolo(num_boxes=2, num_classes=20) # 2 boxes per grid, 20 classes (Pascal VOC)
+    sample = torch.randn((1,3,448,448))
+    output = model(sample)
+    print(output.shape)

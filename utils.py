@@ -1,8 +1,10 @@
+from operator import index
 import torch
 import numpy as np
 import matplotlib.pyplot as plt
 from collections import Counter
 import cv2
+import random
 
 
 class Colors:
@@ -63,7 +65,7 @@ def draw_text(img, text,
     return text_size
 
 
-def draw_boxes(image : np.ndarray, bboxes):
+def draw_boxes(image : np.ndarray, bboxes: np.ndarray, plot=True):
     height, width, _ = image.shape
     for idx, bbox in enumerate(bboxes):
         box = bbox[2:]
@@ -71,9 +73,12 @@ def draw_boxes(image : np.ndarray, bboxes):
         x2,y2 = int(x + (box[2] * width)), int(y + (box[3] * height))
         cv2.rectangle(image,(x,y),(x2,y2), colors(idx), 3)
         draw_text(image, f"{classes[int(bbox[0])]}", font_scale=1, pos=(x, y2 - 20), text_color=(255,255,255), text_color_bg=colors(idx), font_thickness=4)
-    plt.imshow(image)
-    plt.show()
-
+    if plot:
+        plt.imshow(image)
+        plt.show()
+        return None
+    else:
+        return image
 
 # below methods @author: https://github.com/aladdinpersson
 def intersection_over_union(boxes_preds, boxes_labels, box_format="midpoint"):
@@ -370,3 +375,32 @@ def cellboxes_to_boxes(out, S=7):
         all_bboxes.append(bboxes)
 
     return all_bboxes
+
+
+def log_some_examples(dataset, model):
+    indexes = random.sample(range(0, len(dataset)), 10)
+    model.eval()
+    image_list = []
+    dataset = dataset.dataset # uses original PIL Images from torchvision VOC dataset
+    for idx in indexes:
+        image = np.array(dataset[idx][0].resize((224 * 2,224 * 2)))
+        x = torch.tensor(image.transpose(2,0,1)).float().cuda()
+        x = x[None,...]
+        with torch.no_grad():
+            output = model(x)
+        bboxes = cellboxes_to_boxes(out=output, S=7)[0]
+        bboxes = non_max_suppression(bboxes=bboxes, iou_threshold=0.5, 
+            threshold=0.4, box_format="midpoint")
+    
+        image = draw_boxes(image = np.array(dataset[idx][0].resize((224 * 2,224*2))), bboxes=bboxes, plot=False)
+        image_list.append(image)
+
+    model.train()
+    half = 5
+    upper = np.hstack(image_list[:half])
+    lower = np.hstack(image_list[half:])
+    log_images = np.vstack((upper,lower))
+    log_images = cv2.resize(log_images,None,fx=0.6, fy=0.6)
+    return log_images
+
+    
